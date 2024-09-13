@@ -26,6 +26,7 @@ interface Set {
   serie: number;
   reps: number;
   kg: number;
+  completed?: boolean; 
 }
 
 const Sets: React.FC = () => {
@@ -70,7 +71,6 @@ const Sets: React.FC = () => {
           reps: set.reps || 0,
           kg: set.kg || 0,
         }));
-        // Sort the sets by serie number in ascending order
         setsData.sort((a: Set, b: Set) => a.serie - b.serie);
         setSets(setsData);
       } else {
@@ -94,7 +94,6 @@ const Sets: React.FC = () => {
         reps: 0,
         kg: 0,
       };
-      // Add the new set and sort the array
       return [...prevSets, newSet].sort((a, b) => a.serie - b.serie);
     });
   };
@@ -190,7 +189,6 @@ const Sets: React.FC = () => {
           throw new Error("Set operation failed");
         })
       );
-      // Sort the updated sets before setting the state
       setSets(updatedSets.sort((a, b) => a.serie - b.serie));
       Toast.show({
         text1: "Sets saved successfully",
@@ -205,6 +203,14 @@ const Sets: React.FC = () => {
     }
   };
 
+  const toggleSetCompletion = (index: number) => {
+    setSets((prevSets) =>
+      prevSets.map((set, i) =>
+        i === index ? { ...set, completed: !set.completed } : set
+      )
+    );
+  };
+
   if (loading) {
     return (
       <SafeAreaView className="flex-1 justify-center items-center">
@@ -214,47 +220,82 @@ const Sets: React.FC = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 mt-6">
-      <ScrollView className="flex-1 p-4">
-        <View className="flex-row justify-between items-center mb-4">
-          <Text className="text-2xl font-bold">{Exercise?.name}</Text>
-          <Button
-            title="Save"
-            color="#0000ff"
+    <SafeAreaView className="flex-1 mt-6 ">
+      <ScrollView className="flex-1 px-4 pt-4 ">
+        <View className="flex-row justify-between items-center mb-6">
+          <Text className="text-2xl font-bold text-gray-800">{Exercise?.name}</Text>
+          <View className="flex-row gap-3">
+
+          <TouchableOpacity
+            className="bg-blue-500 px-4 py-2 rounded-lg"
             onPress={handleSaveSets}
-          />
+          >
+            <Text className="text-white font-semibold">Save</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className=" px-4 py-2 rounded-lg"
+            // onPress={handleSaveSets}
+          >
+            <Ionicons
+            name="timer-sharp"
+            size={28}
+            color="black"
+            />
+          </TouchableOpacity>
+          </View>
+
         </View>
-        <View className="flex-row mb-2">
-          <Text className="flex-1 font-bold">Sets</Text>
-          <Text className="flex-1 font-bold">kg</Text>
-          <Text className="flex-1 font-bold">reps</Text>
-          <Text className="flex-1 font-bold"></Text>
+        <View className="flex-row mb-4 bg-gray-200 p-3 rounded-lg">
+          <Text className="flex-1 font-bold text-gray-600 text-center">
+            <Ionicons
+              name="checkmark-done"
+              color="#4A5568"
+              size={20}
+            />
+          </Text>
+          <Text className="flex-1 font-bold text-gray-600 text-center">SETS</Text>
+          <Text className="flex-1 font-bold text-gray-600 text-center">KG</Text>
+          <Text className="flex-1 font-bold text-gray-600 text-center">REPS</Text>
+          <Text className="flex-1 font-bold text-gray-600 text-center">
+            <Ionicons
+              name="trash-bin"
+              color="#4A5568"
+              size={20}
+            />
+          </Text>
         </View>
         {sets.map((set, index) => (
-          <View key={set.id || index} className="flex-row mb-2">
-            <Text className="flex-1">{set.serie}</Text>
+          <View key={set.id || index} className={`flex-row mb-3 items-center ${set.completed ? 'bg-green-200' : 'bg-white'} rounded-lg p-3 shadow-sm`}>
+            <TouchableOpacity onPress={() => toggleSetCompletion(index)} className="flex-1 items-center">
+              <Ionicons 
+                name={set.completed ? "checkmark-circle" : "checkmark-circle-outline"} 
+                color={set.completed ? "#48BB78" : "#A0AEC0"}
+                size={28}
+              />
+            </TouchableOpacity>
+            <Text className="flex-1 text-center font-semibold text-gray-700">{set.serie}</Text>
             <TextInput
-              className="flex-1 border-b border-gray-300"
+              className="flex-1 border-b border-gray-300 text-center text-gray-700 px-2 py-1"
               keyboardType="numeric"
               onChangeText={(value) => updateSetValue(index, "kg", value)}
               value={set.kg.toString()}
             />
             <TextInput
-              className="flex-1 border-b border-gray-300"
+              className="flex-1 border-b border-gray-300 text-center text-gray-700 px-2 py-1"
               keyboardType="numeric"
               onChangeText={(value) => updateSetValue(index, "reps", value)}
               value={set.reps.toString()}
             />
-            <TouchableOpacity onPress={() => handleDeleteSet(index)}>
-              <Ionicons name="trash" size={24} color="red" />
+            <TouchableOpacity onPress={() => handleDeleteSet(index)} className="flex-1 items-center">
+              <Ionicons name="trash" size={24} color="#E53E3E" />
             </TouchableOpacity>
           </View>
         ))}
         <TouchableOpacity
-          className="bg-blue-500 p-2 rounded-md mt-4"
+          className="bg-blue-500 p-3 rounded-lg mt-6 mb-8"
           onPress={addSet}
         >
-          <Text className="text-white text-center">+ Add Set</Text>
+          <Text className="text-white text-center font-semibold">+ Add Set</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

@@ -18,7 +18,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
-// Interfaces
 interface Workout {
   id: string;
   name: string;
@@ -45,7 +44,6 @@ interface Set {
 }
 
 const Exercise: React.FC = () => {
-  // State
   const [exercises, setExercises] = useState<ExList[]>([]);
   const [exList, setExList] = useState<ExList[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +52,6 @@ const Exercise: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [Sets, setSets] = useState<Set[]>([]);
   const { workout } = useLocalSearchParams();
-  // Workout object
   let workoutObject: Workout | null = null;
   if (typeof workout === "string") {
     try {
@@ -220,6 +217,34 @@ const Exercise: React.FC = () => {
     }
   }, [workoutObject]);
 
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [time, setTime] = useState(0);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isTimerRunning) {
+      interval = setInterval(() => {
+        setTime((prevTime) => prevTime + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isTimerRunning]);
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  const toggleTimer = () => {
+    setIsTimerRunning(!isTimerRunning);
+  };
+
+  const resetTimer = () => {
+    setTime(0);
+    setIsTimerRunning(false);
+  };
+
   return (
     <SafeAreaView className="flex-1  px-4 mt-6">
       <View>
@@ -227,6 +252,26 @@ const Exercise: React.FC = () => {
           Add Exercises to "{workoutObject?.name ?? "Workout"}"
         </Text>
       </View>
+      <View className="bg-gray-200 p-4 rounded-lg mb-4">
+        <Text className="text-3xl font-bold text-center">{formatTime(time)}</Text>
+        <View className="flex-row justify-center mt-2">
+          <TouchableOpacity
+            className="bg-blue-500 px-4 py-2 rounded-lg mr-2"
+            onPress={toggleTimer}
+          >
+            <Text className="text-white font-bold">
+              {isTimerRunning ? "Pause" : "Start"}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="bg-red-500 px-4 py-2 rounded-lg"
+            onPress={resetTimer}
+          >
+            <Text className="text-white font-bold">Reset</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
       <FlatList
         data={exercises}
         keyExtractor={(item) => item.id}
@@ -238,7 +283,6 @@ const Exercise: React.FC = () => {
         <Button title="Add Exercises" onPress={toggleModal} color="#FFA001" />
       </View>
 
-      {/* Modal */}
       <Modal visible={modalVisible} animationType="slide" transparent={true}>
         <SafeAreaView className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white p-6 rounded-lg w-11/12 max-h-[80%]">
@@ -253,7 +297,7 @@ const Exercise: React.FC = () => {
             />
 
             <FlatList
-              data={filteredExList} // Use filteredExList for modal search
+              data={filteredExList} 
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => {
                 const isSelected = selectedExercises.some(

@@ -31,7 +31,6 @@ const Login = () => {
     try {
       const response = await Private_api.post(APIS.LOGIN, form);
       if (response.status === 201) {
-        console.log(response.data)
         const { access_token, role, sub ,Username} = response.data;
 
         await login(access_token, role,sub,Username);

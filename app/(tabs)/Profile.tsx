@@ -44,7 +44,6 @@ const Profile = () => {
     if (password) form.password = password;
     if (age) form.age = parseInt(age, 10);
   
-    console.log(form);
     try {
       const response = await Private_api.patch(`${APIS.UPDATE_USER}/${userSub}`, form, {
         headers: {
@@ -63,7 +62,6 @@ const Profile = () => {
           text1: "Unexpected status code",
           text2: `Status code: ${response.status}`,
         });
-        console.log(response.data);
       }
     } catch (error) {
       console.error(error);

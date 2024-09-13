@@ -41,26 +41,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         const sub = await AsyncStorage.getItem("user_sub");
         const username = await AsyncStorage.getItem("Username");
 
-        console.log("Retrieved auth data:", {
-          token,
-          role,
-          sub,
-          Username: username,
-        });
-
         if (token && role && sub) {
           setIsLoggedIn(true);
           setUserRole(role);
           setUserSub(sub);
           setUsername(username);
-          console.log("Auth data set in state:", {
-            isLoggedIn: true,
-            userRole: role,
-            userSub: sub,
-            Username: username,
-          });
-        } else {
-          console.log("Incomplete auth data, user needs to log in");
+
         }
       } catch (error) {
         console.error("Failed to load auth data:", error);
@@ -95,7 +81,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       await AsyncStorage.setItem("user_sub", sub);
       await AsyncStorage.setItem("Username", Username || "");
 
-      console.log("AsyncStorage items set");
 
       setIsLoggedIn(true);
       setUserRole(role);
